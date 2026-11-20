@@ -47,9 +47,54 @@ def download_mp4(url: str) -> tuple[str, str]:
                 final_path = os.path.join(DOWNLOAD_DIR, filename)
                 break
     if not os.path.exists(final_path):
-        raise FileNotFoundError("File unduhan tidak ditemukan.")
+        raise FileNotFoundError("File MP4 tidak ditemukan.")
 
     # Mengembalikan Hasil
     title = info.get("title", "video")
     download_name = f"{_sanitize_filename(title)}.mp4"
     return final_path, download_name    
+
+# Setup YouTube to MP3    
+def download_mp3(url: str) -> tuple[str, str]:
+    """
+        YouTube Video To MP3
+    """
+
+    # Format nama file
+    job_id = str(uuid.uuid4())[:6]
+    outtmpl = os.path.join(DOWNLOAD_DIR, f"streamgrab_%(title)s_{job_id}.%(ext)s")
+
+    ydl_opts = {
+        "outtmpl": outtmpl,
+        "noplaylist": True,
+        "format": "bestaudio/best",
+        "postprocessors": [{
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "mp3",
+            "preferredquality": "192",
+        }],
+        "quiet": True,
+        "no_warnings": True,
+    }
+
+    # Eksekusi Download
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        prepared = ydl.prepare_filename(info)
+
+        base_no_ext, _ = os.path.splitext(prepared)
+        final_path = f"{base_no_ext}.mp3"
+
+        if not os.path.exists(final_path):
+            suffix = f"_{job_id}.mp3"
+            for filename in os.listdir(DOWNLOAD_DIR):
+                if filename.startswith("streamgrab_") and filename.endswith(suffix):
+                    final_path = os.path.join(DOWNLOAD_DIR, filename)
+                    break
+
+        if not os.path.exists(final_path):
+            raise FileNotFoundError("File MP3 tidak ditemukan.")
+
+        title = info.get("title", "audio")
+        download_name = f"{_sanitize_filename(title)}.mp3"
+        return final_path, download_name
