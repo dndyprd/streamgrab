@@ -41,8 +41,9 @@ def download_mp4(url: str) -> tuple[str, str]:
     final_path = f"{base_no_ext}.mp4"
 
     if not os.path.exists(final_path):
+        suffix = f"_{job_id}.mp4"
         for filename in os.listdir(DOWNLOAD_DIR):
-            if filename.startswith(job_id) and filename.endswith(".mp4"):
+            if filename.startswith("streamgrab_") and filename.endswith(suffix):
                 final_path = os.path.join(DOWNLOAD_DIR, filename)
                 break
     if not os.path.exists(final_path):
@@ -51,4 +52,4 @@ def download_mp4(url: str) -> tuple[str, str]:
     # Mengembalikan Hasil
     title = info.get("title", "video")
     download_name = f"{_sanitize_filename(title)}.mp4"
-    return final_path, download_name
+    return final_path, download_name    
