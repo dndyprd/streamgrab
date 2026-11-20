@@ -1,14 +1,348 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StreamGrab — Save Audio & Video Without The Clutter</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/x-icon">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- BoxIcons CDN -->
+    <link href="https://cdn.boxicons.com/3.0.8/fonts/basic/boxicons.min.css" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Funnel Display"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neo-sm': '3px 3px 0px #0f172a',
+                        'neo': '4px 4px 0px #0f172a',
+                        'neo-lg': '6px 6px 0px #0f172a',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Funnel Display', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+    </style>
 </head>
 
-<body>
-    Halo Index
+
+
+<body class="min-h-screen flex items-center justify-center">
+    <main id="downloader"
+        class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-12 lg:gap-20 items-center justify-center">
+        <!-- Left Content -->
+        <div class="flex flex-col space-y-4">
+
+            <!-- Tagline Badge -->
+            <div
+                class="inline-flex items-center gap-2 self-start px-4 py-1.5 rounded-full border-2 border-slate-900 bg-white shadow-neo-sm text-sm font-bold text-slate-800">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="StreamGrab Logo"
+                    class="w-6 h-6 object-contain" onerror="this.src='../static/images/logo.png'">
+                <span>StreamGrab</span>
+            </div>
+
+            <!-- Main Hero Headline -->
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl text-slate-900">
+                <span class="font-light">Save</span>
+                <span
+                    class="font-extrabold text-white bg-violet-600 px-3.5 py-1 rounded-2xl border-2 border-slate-900 shadow-neo inline-block mx-1">
+                    Audio & Video
+                </span>
+                <br>
+                <span class="font-medium">Without</span>
+                <span class="font-bold">The Clutter<span class="text-brand-blue">.</span></span>
+            </h1>
+
+            <!-- Hero Subtitle -->
+            <p class="text-base sm:text-lg text-slate-600 font-normal max-w-xl leading-relaxed pb-4">
+                Konversi dan unduh media streaming favoritmu menjadi file <strong
+                    class="font-semibold text-slate-900">MP4</strong> definisi tinggi atau <strong
+                    class="font-semibold text-slate-900">MP3</strong> jernih secara instan, aman, dan
+                tanpa biaya.
+            </p>
+
+            <!-- Downloader Card / Input Section -->
+            <div class="bg-white rounded-3xl border-2 border-slate-900 shadow-neo-lg p-6 sm:p-7 space-y-4 relative">
+                <form id="downloadForm" class="space-y-4">
+
+                    <!-- URL Input -->
+                    <div class="flex flex-col space-y-2">
+                        <label for="url" class="text-xs font-bold uppercase tracking-wider text-slate-800">
+                            Link URL Video
+                        </label>
+                        <div class="relative flex items-center">
+                            <div class="absolute left-4 pointer-events-none text-slate-400">
+                                <i class="bx bx-movie-play text-xl"></i>
+                            </div>
+                            <input type="url" id="url" name="url" placeholder="https://youtube.com/watch?v=..." required
+                                class="w-full pl-12 pr-4 py-3.5 bg-slate-50 hover:bg-white focus:bg-white rounded-2xl border-2 border-slate-900 shadow-neo text-sm font-medium text-slate-900 placeholder:text-slate-400 placeholder:font-light outline-none transition-all" />
+                        </div>
+                    </div>
+
+                    <!-- Format & Options Controls -->
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
+                        <!-- Format Selection -->
+                        <div class="sm:col-span-5">
+                            <label for="format"
+                                class="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                                Pilih Format
+                            </label>
+                            <div class="relative">
+                                <select id="format" name="format"
+                                    class="w-full appearance-none px-6 py-4 bg-slate-50 hover:bg-white focus:bg-white rounded-2xl border-2 border-slate-900 shadow-neo-sm text-sm font-bold text-slate-900 outline-none cursor-pointer transition-all">
+                                    <option value="mp4" selected>MP4 (Video)
+                                    </option>
+                                    <option value="mp3">MP3 (Audio)
+                                    </option>
+                                </select>
+                                <div
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-800">
+                                    <i class="bx bx-chevron-down text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Convert Button -->
+                        <div class="sm:col-span-7 flex flex-col justify-end">
+                            <button type="submit" id="convertBtn"
+                                class="btn-neo w-full py-3 px-6 rounded-2xl border-2 border-slate-900 bg-violet-600 hover:bg-violet-700 text-white font-extrabold text-sm sm:text-base shadow-neo flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+                                <i class="bx bx-swap-diagonal text-xl"></i>
+                                <span id="btnText">Convert</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Status / Feedback Banner -->
+                <div id="status"
+                    class="hidden text-xs sm:text-sm font-semibold rounded-2xl border-2 border-slate-900 p-3.5 transition-all">
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center gap-1 text-sm text-slate-500 font-medium">
+                <span>Created by</span>
+                <a class="text-violet-600 hover:text-violet-700" href="https://dndyprd.vercel.app">@dndyprd</a>
+                <span>&copy; 2026</span>
+            </div>
+        </div>
+
+        <!-- Right Content -->
+        <div class="w-full max-w-lg relative">
+            <div
+                class="absolute -inset-4 bg-gradient-to-r from-violet-100 to-violet-200 rounded-3xl -z-10 rotate-4 border-2 border-dashed border-slate-300">
+            </div>
+            <div
+                class="bg-white rounded-3xl border-2 border-slate-900 shadow-neo-lg p-6 relative overflow-hidden flex flex-col space-y-5">
+
+                <!-- Header -->
+                <div class="flex items-center justify-between border-b-2 border-slate-900 pb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded-full bg-sky-500 border border-slate-900"></span>
+                        <span class="w-3.5 h-3.5 rounded-full bg-blue-500 border border-slate-900"></span>
+                        <span class="w-3.5 h-3.5 rounded-full bg-violet-500 border border-slate-900"></span>
+                    </div>
+                    <span
+                        class="text-xs font-extrabold uppercase px-3 py-1 rounded-full border-2 border-slate-900 bg-slate-100 shadow-neo-sm">
+                        LIVE PREVIEW
+                    </span>
+                </div>
+
+                <!-- Video Mockup -->
+                <div id="videoMockup"
+                    class="relative w-full aspect-video rounded-2xl border-2 border-slate-900 bg-slate-950 overflow-hidden flex items-center justify-center group shadow-neo-sm">
+                    <!-- Texture -->
+                    <div
+                        class="absolute inset-0 opacity-30 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]">
+                    </div>
+
+                    <!-- Video Graphic -->
+                    <div id="mockupGraphics"
+                        class="relative z-10 flex flex-col items-center justify-center text-center p-4 space-y-3">
+                        <div
+                            class="w-14 h-14 rounded-full border-2 border-white bg-brand-blue flex items-center justify-center text-white shadow-neo group-hover:scale-105 transition-transform">
+                            <svg class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-sm font-bold text-white tracking-wide" id="previewTitle">
+                                Siap Mengunduh
+                                Media</h2>
+                            <p class="text-xs font-light text-slate-300" id="previewSub">
+                                Masukkan URL video untuk melihat rincian</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Details in Preview Box -->
+                <div class="bg-slate-50 rounded-2xl border-2 border-slate-900 p-4 space-y-2">
+                    <div class="sm:col-span-5">
+                        <label for="format"
+                            class="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                            Pilih Kualitas
+                        </label>
+                        <div class="relative">
+                            <select id="format" name="format"
+                                class="w-full appearance-none px-6 py-4 bg-slate-50 hover:bg-white focus:bg-white rounded-2xl border-2 border-slate-900 shadow-neo-sm text-sm font-bold text-slate-900 outline-none cursor-pointer transition-all">
+                                <option value="1080" selected>
+                                    1080 kbps
+                                </option>
+                                <option value="720">
+                                    720 kbps
+                                </option>
+                                <option value="480">
+                                    480 kbps
+                                </option>
+                                <option value="360">
+                                    360 kbps
+                                </option>
+                            </select>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-800">
+                                <i class="bx bx-chevron-down text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="submitBtn"
+                        class="btn-neo w-full py-3.5 px-6 rounded-2xl border-2 border-slate-900 bg-violet-600 hover:bg-violet-700 text-white font-extrabold text-sm sm:text-base shadow-neo flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+                        <i class="bx bx-download text-xl"></i>
+                        <span id="btnText">Unduh Sekarang</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Form & Download handling
+        const form = document.getElementById("downloadForm");
+        const statusEl = document.getElementById("status");
+        const btn = document.getElementById("submitBtn");
+        const btnText = document.getElementById("btnText");
+        const urlInput = document.getElementById("url");
+        const formatSelect = document.getElementById("format");
+        const previewTitle = document.getElementById("previewTitle");
+        const previewSub = document.getElementById("previewSub");
+        const speedIndicator = document.getElementById("speedIndicator");
+
+        // Live input feedback
+        urlInput.addEventListener("input", () => {
+            const val = urlInput.value.trim();
+            if (val) {
+                try {
+                    const parsed = new URL(val);
+                    previewTitle.textContent = "Media Terdeteksi";
+                    previewSub.textContent = parsed.hostname;
+                } catch {
+                    previewTitle.textContent = "Mengetik URL...";
+                    previewSub.textContent = "Pastikan tautan diawali https://";
+                }
+            } else {
+                previewTitle.textContent = "Siap Mengunduh Media";
+                previewSub.textContent = "Masukkan URL video untuk melihat rincian";
+            }
+        });
+
+        formatSelect.addEventListener("change", () => {
+            const fmt = formatSelect.value.toUpperCase();
+            if (urlInput.value.trim()) {
+                previewSub.textContent = "Format: " + fmt + " (" + (fmt === "MP4" ? "Video Full HD" : "Audio 320kbps") + ")";
+            }
+        });
+
+        // Form Submit
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const url = urlInput.value.trim();
+            const format = formatSelect.value;
+
+            btn.disabled = true;
+            btnText.textContent = "Memproses di server...";
+            speedIndicator.textContent = "Sedang Mengunduh...";
+            speedIndicator.className = "font-extrabold text-amber-600 animate-pulse";
+
+            statusEl.className = "text-xs sm:text-sm font-semibold rounded-2xl border-2 border-slate-900 p-4 bg-amber-50 text-amber-900 block shadow-neo-sm";
+            statusEl.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="inline-block w-3 h-3 rounded-full bg-amber-500 animate-ping"></span>
+                    <span>Sedang memproses dan mengonversi media di server. Mohon tunggu beberapa detik...</span>
+                </div>
+            `;
+
+            try {
+                const res = await fetch("/api/download", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url, format }),
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || "Gagal memproses unduhan.");
+                }
+
+                const disposition = res.headers.get("Content-Disposition") || "";
+                const match = disposition.match(/filename="?([^"]+)"?/i);
+                const filename = match ? match[1] : `download.${format}`;
+
+                const blob = await res.blob();
+                const objectUrl = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = objectUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(objectUrl);
+
+                speedIndicator.textContent = "Selesai (Terkirim)";
+                speedIndicator.className = "font-extrabold text-emerald-600";
+                previewTitle.textContent = filename;
+                previewSub.textContent = "File berhasil diunduh ke perangkat!";
+
+                statusEl.className = "text-xs sm:text-sm font-semibold rounded-2xl border-2 border-slate-900 p-4 bg-emerald-50 text-emerald-900 block shadow-neo-sm";
+                statusEl.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-emerald-600 font-bold text-base">✔</span>
+                        <span>Berhasil! File <strong>${filename}</strong> telah mulai diunduh.</span>
+                    </div>
+                `;
+            } catch (err) {
+                speedIndicator.textContent = "Gagal";
+                speedIndicator.className = "font-extrabold text-rose-600";
+                statusEl.className = "text-xs sm:text-sm font-semibold rounded-2xl border-2 border-slate-900 p-4 bg-rose-50 text-rose-900 block shadow-neo-sm";
+                statusEl.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-rose-600 font-bold text-base">✕</span>
+                        <span>Error: ${err.message}</span>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = "Unduh Sekarang";
+            }
+        });
+    </script>
 </body>
 
 </html>

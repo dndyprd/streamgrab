@@ -7,4 +7,5 @@ services:
       - "5000:5000"
     volumes:
       - ./downloads:/app/downloads
+      - ./templates:/app/templates
     restart: unless-stopped

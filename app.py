@@ -1,12 +1,12 @@
 import os
-from flask import Flask, jsonify, after_this_request, request, send_file
+from flask import Flask, jsonify, after_this_request, request, send_file, render_template
 from downloader import download_mp3, download_mp4
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-  return jsonify({"status": "ok", "message": "Stream downloader API ready"})
+  return render_template("index.html")
 
 @app.route("/api/download", methods=["POST"])
 def api_download():
