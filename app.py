@@ -1,6 +1,6 @@
 import os
 from flask import Flask, jsonify, after_this_request, request, send_file, render_template
-from downloader import download_mp3, download_mp4
+from downloader import download_mp3, download_mp4, get_media_info
 
 app = Flask(__name__)
 
@@ -20,7 +20,7 @@ def api_info():
         info = get_media_info(url)
         return jsonify(info)
     except Exception as exc:
-        return jsonify({"error": f"Gagal mengambil informasi : {exc}"}), 500
+        return jsonify({"error": f"Gagal mengambil informasi {exc}"}), 500
 
 @app.route("/api/download/", methods=["POST"])
 def api_download():
