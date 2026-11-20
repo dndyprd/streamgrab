@@ -8,11 +8,26 @@ app = Flask(__name__)
 def home():
   return render_template("index.html")
 
-@app.route("/api/download", methods=["POST"])
+@app.route("/api/info/", methods=["POST"])
+def api_info():
+    data = request.get_json(silent=True) or {}
+    url = (data.get("url") or "").strip()
+
+    if not url:
+        return jsonify({"error": "URL wajib diisi."}), 400
+    
+    try:
+        info = get_media_info(url)
+        return jsonify(info)
+    except Exception as exc:
+        return jsonify({"error": f"Gagal mengambil informasi : {exc}"}), 500
+
+@app.route("/api/download/", methods=["POST"])
 def api_download():
     data = request.get_json(silent=True) or {}
     url = (data.get("url") or request.form.get("url") or "").strip()
     fmt = (data.get("format") or request.form.get("format") or "mp4").strip().lower()
+    quality = str(data.get("quality") or ("max" if fmt == "mp4" else "192")).strip()
 
     if not url:
         return jsonify({"error" : "URL wajib diisi."}), 400
