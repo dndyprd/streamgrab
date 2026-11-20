@@ -84,14 +84,12 @@ def download_mp4(url: str, quality: str = "max") -> tuple[str, str]:
         raise FileNotFoundError("File MP4 tidak ditemukan.")
 
     # Mengembalikan Hasil
-    actual_height = info.get("height")
-    final_tag = f"{actual_height}p" if actual_height else label_suffix
     title = info.get("title", "video")
-    download_name = f"{_sanitize_filename(title)}_{final_tag}.mp4"
+    download_name = f"{_sanitize_filename(title)}.mp4"
     return final_path, download_name    
 
 # Setup YouTube to MP3    
-def download_mp3(url: str) -> tuple[str, str]:
+def download_mp3(url: str, quality: str = "max") -> tuple[str, str]:
 
     # Format nama file
     job_id = str(uuid.uuid4())[:6]
@@ -138,8 +136,6 @@ def download_mp3(url: str) -> tuple[str, str]:
     if not os.path.exists(final_path):
         raise FileNotFoundError("File MP3 tidak ditemukan.")
 
-    actual_abr = info.get("abr")
-    final_tag = f"{int(actual_abr)}kbps" if actual_abr else label_tag
     title = info.get("title", "audio")
-    download_name = f"{_sanitize_filename(title)}_{final_tag}.mp3"
+    download_name = f"{_sanitize_filename(title)}.mp3"
     return final_path, download_name
