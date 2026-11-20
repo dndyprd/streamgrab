@@ -1,0 +1,10 @@
+services:
+  streamgrab:
+    build: .
+    image: streamgrab
+    container_name: streamgrab-app
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./downloads:/app/downloads
+    restart: unless-stopped
