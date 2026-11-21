@@ -112,7 +112,7 @@ def download_mp3(url: str, quality: str = "max") -> tuple[str, str]:
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": "mp3",
-            "preferredquality": "192",
+            "preferredquality": bitrate,
         }],
         "quiet": True,
         "no_warnings": True,

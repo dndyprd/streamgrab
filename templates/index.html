@@ -41,6 +41,33 @@
             background-color: #f8fafc;
             color: #0f172a;
         }
+
+        .btn-neo {
+            transition: all 0.15s ease-in-out;
+        }
+
+        .btn-neo:hover:not(:disabled) {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #0f172a;
+        }
+
+        .btn-neo:active:not(:disabled) {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #0f172a;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 2px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #0f172a;
+            border-radius: 9999px;
+        }
     </style>
 </head>
 
@@ -100,23 +127,68 @@
 
                     <!-- Format & Options Controls -->
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
-                        <!-- Format Selection -->
-                        <div class="sm:col-span-5">
-                            <label for="format"
-                                class="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                        <!-- Format Selection (Neobrutalism Custom Dropdown) -->
+                        <div class="sm:col-span-5 relative" id="formatDropdown">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
                                 Pilih Format
                             </label>
-                            <div class="relative">
-                                <select id="format" name="format"
-                                    class="w-full appearance-none px-6 py-4 bg-slate-50 hover:bg-white focus:bg-white rounded-2xl border-2 border-slate-900 shadow-neo-sm text-sm font-bold text-slate-900 outline-none cursor-pointer transition-all">
-                                    <option value="mp4" selected>MP4 (Video)
-                                    </option>
-                                    <option value="mp3">MP3 (Audio)
-                                    </option>
-                                </select>
-                                <div
-                                    class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-800">
-                                    <i class="bx bx-chevron-down text-xl"></i>
+                            <!-- Hidden original select for form compatibility -->
+                            <select id="format" name="format" class="hidden">
+                                <option value="mp4" selected>MP4 (Video)</option>
+                                <option value="mp3">MP3 (Audio)</option>
+                            </select>
+
+                            <!-- Custom Trigger Button -->
+                            <button type="button" id="formatTrigger"
+                                class="btn-neo w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-white focus:bg-white rounded-2xl border-2 border-slate-900 shadow-neo-sm text-sm font-bold text-slate-900 outline-none cursor-pointer transition-all">
+                                <div class="flex items-center gap-2.5">
+                                    <span id="formatIconBadge" class="w-7 h-7 rounded-lg bg-violet-600 text-white border border-slate-900
+                                        shadow-[1px_1px_0px_#0f172a] flex items-center justify-center">
+                                        <i class="bx bx-video text-base font-normal"></i>
+                                    </span>
+                                    <span id="formatLabel" class="font-extrabold text-slate-900">MP4
+                                        (Video)</span>
+                                </div>
+                                <i id="formatChevron"
+                                    class="bx bx-chevron-down text-xl text-slate-900 transition-transform duration-200"></i>
+                            </button>
+
+                            <!-- Neobrutalist Dropdown Menu -->
+                            <div id="formatMenu"
+                                class="hidden absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border-2 border-slate-900 shadow-neo-lg z-50 overflow-hidden divide-y-2 divide-slate-900">
+                                <div class="format-option p-3 hover:bg-violet-50 cursor-pointer transition-colors flex items-center justify-between group bg-violet-50/70"
+                                    data-value="mp4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-8 h-8 rounded-xl bg-violet-600 text-white border-2 border-slate-900
+                                            shadow-neo-sm flex items-center justify-center">
+                                            <i class="bx bx-video text-lg font-normal"></i>
+                                        </span>
+                                        <div>
+                                            <div class="text-sm font-black text-slate-900">MP4 (Video)
+                                            </div>
+                                            <div class="text-[11px] font-medium text-slate-500">Video
+                                                Full HD + Audio</div>
+                                        </div>
+                                    </div>
+                                    <i class="bx bx-check-circle"></i>
+                                    </span>
+                                </div>
+                                <div class="format-option p-3 hover:bg-amber-50 cursor-pointer transition-colors flex items-center justify-between group"
+                                    data-value="mp3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-8 h-8 rounded-xl bg-amber-400 text-slate-900 border-2
+                                            border-slate-900 shadow-neo-sm flex items-center justify-center">
+                                            <i class="bx bx-music text-lg font-normal"></i>
+                                        </span>
+                                        <div>
+                                            <div class="text-sm font-black text-slate-900">MP3 (Audio)
+                                            </div>
+                                            <div class="text-[11px] font-medium text-slate-500">Audio
+                                                Murni 320kbps</div>
+                                        </div>
+                                    </div>
+                                    <i class="bx bx-check-circle"></i>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -151,8 +223,8 @@
             <div
                 class="absolute -inset-4 bg-gradient-to-r from-violet-100 to-violet-200 rounded-3xl -z-10 rotate-4 border-2 border-dashed border-slate-300">
             </div>
-            <div
-                class="bg-white rounded-3xl border-2 border-slate-900 shadow-neo-lg p-6 relative overflow-hidden flex flex-col space-y-5">
+            <div class="bg-white rounded-3xl border-2 border-slate-900 shadow-neo-lg p-6 relative flex flex-col
+                space-y-5">
 
                 <!-- Header -->
                 <div class="flex items-center justify-between border-b-2 border-slate-900 pb-4">
@@ -182,18 +254,34 @@
                         <p class="text-xs font-light text-slate-500" id="previewSub"></p>
                     </div>
 
-                    <div>
-                        <label for="quality"
-                            class="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <!-- Quality Selection (Neobrutalism Custom Dropdown) -->
+                    <div class="relative z-20" id="qualityDropdown">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
                             Pilih Kualitas
                         </label>
-                        <div class="relative">
-                            <select id="quality" name="quality"
-                                class="w-full appearance-none px-6 py-4 bg-slate-50 hover:bg-white focus:bg-white rounded-2xl border-2 border-slate-900 shadow-neo-sm text-sm font-bold text-slate-900 outline-none cursor-pointer transition-all">
-                            </select>
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-800">
-                                <i class="bx bx-chevron-down text-xl"></i>
+
+                        <!-- Hidden select for compatibility -->
+                        <select id="quality" name="quality" class="hidden"></select>
+
+                        <!-- Custom Trigger Button -->
+                        <button type="button" id="qualityTrigger"
+                            class="btn-neo w-full flex items-center justify-between px-4 py-3 bg-white rounded-2xl border-2 border-slate-900 shadow-neo-sm text-sm font-bold text-slate-900 outline-none cursor-pointer transition-all">
+                            <div class="flex items-center gap-2.5">
+                                <span id="qualityBadge"
+                                    class="px-2 py-0.5 rounded-md bg-amber-300 text-slate-900 border border-slate-900 shadow-[1px_1px_0px_#0f172a] text-[10px] font-black uppercase">
+                                    MAX
+                                </span>
+                                <span id="qualityLabel" class="font-extrabold text-slate-900">Tertinggi
+                                    (Otomatis)</span>
                             </div>
+                            <i id="qualityChevron"
+                                class="bx bx-chevron-up text-xl text-slate-900 transition-transform duration-200"></i>
+                        </button>
+
+                        <!-- Neobrutalist Dropdown Menu (Opens Upward / Dropup) -->
+                        <div id="qualityMenu" class="hidden absolute left-0 right-0 bottom-full mb-2 max-h-56 overflow-y-auto
+                            custom-scrollbar bg-white rounded-2xl border-2 border-slate-900 shadow-neo-lg z-50
+                            divide-y-2 divide-slate-100">
                         </div>
                     </div>
 
@@ -223,34 +311,207 @@
         const previewSub = document.getElementById("previewSub");
         const qualitySelect = document.getElementById("quality");
 
+        // Custom Neobrutalism Format Dropdown Elements
+        const formatDropdown = document.getElementById("formatDropdown");
+        const formatTrigger = document.getElementById("formatTrigger");
+        const formatMenu = document.getElementById("formatMenu");
+        const formatIconBadge = document.getElementById("formatIconBadge");
+        const formatLabel = document.getElementById("formatLabel");
+        const formatChevron = document.getElementById("formatChevron");
+        const formatCheckMp4 = document.getElementById("formatCheckMp4");
+        const formatCheckMp3 = document.getElementById("formatCheckMp3");
+
+        // Custom Neobrutalism Quality Dropdown Elements
+        const qualityDropdown = document.getElementById("qualityDropdown");
+        const qualityTrigger = document.getElementById("qualityTrigger");
+        const qualityMenu = document.getElementById("qualityMenu");
+        const qualityBadge = document.getElementById("qualityBadge");
+        const qualityLabel = document.getElementById("qualityLabel");
+        const qualityChevron = document.getElementById("qualityChevron");
+
         let currentUrl = "";
         let currentFormat = "mp4";
 
         const QUALITY_OPTIONS = {
             mp4: [
-                { value: "max", label: "Tertinggi (Otomatis)" },
-                { value: "1080", label: "1080p" },
-                { value: "720", label: "720p" },
-                { value: "480", label: "480p" },
-                { value: "360", label: "360p" },
+                { value: "max", label: "Tertinggi (Otomatis)", badge: "MAX", badgeBg: "bg-amber-300", desc: "Kualitas resolusi terbaik dari video" },
+                { value: "1080", label: "1080p (Full HD)", badge: "1080p", badgeBg: "bg-violet-200", desc: "1920x1080 • Sangat Jernih" },
+                { value: "720", label: "720p (HD)", badge: "720p", badgeBg: "bg-blue-200", desc: "1280x720 • Seimbang & Cepat" },
+                { value: "480", label: "480p (SD)", badge: "480p", badgeBg: "bg-slate-200", desc: "854x480 • Standard" },
+                { value: "360", label: "360p (Ringan)", badge: "360p", badgeBg: "bg-slate-200", desc: "Ukuran file paling kecil" },
             ],
             mp3: [
-                { value: "max", label: "Tertinggi (Otomatis)" },
-                { value: "320", label: "320 kbps" },
-                { value: "192", label: "192 kbps" },
-                { value: "128", label: "128 kbps" },
+                { value: "max", label: "Tertinggi (Otomatis)", badge: "MAX", badgeBg: "bg-amber-300", desc: "Bitrate audio terbaik dari sumber" },
+                { value: "320", label: "320 kbps (Ultra HQ)", badge: "320k", badgeBg: "bg-violet-200", desc: "Audio kualitas studio murni" },
+                { value: "192", label: "192 kbps (Standard)", badge: "192k", badgeBg: "bg-blue-200", desc: "Kualitas jernih & seimbang" },
+                { value: "128", label: "128 kbps (Ringan)", badge: "128k", badgeBg: "bg-slate-200", desc: "Ukuran file hemat & cepat" },
             ],
         };
 
-        function renderQualityOptions(fmt) {
-            qualitySelect.innerHTML = "";
-            QUALITY_OPTIONS[fmt].forEach((opt) => {
-                const el = document.createElement("option");
-                el.value = opt.value;
-                el.textContent = opt.label;
-                qualitySelect.appendChild(el);
+        // Format Dropdown Logic
+        function toggleFormatDropdown() {
+            closeQualityDropdown();
+            const isOpen = !formatMenu.classList.contains("hidden");
+            if (isOpen) {
+                closeFormatDropdown();
+            } else {
+                formatMenu.classList.remove("hidden");
+                formatChevron.style.transform = "rotate(180deg)";
+            }
+        }
+
+        function closeFormatDropdown() {
+            formatMenu.classList.add("hidden");
+            formatChevron.style.transform = "rotate(0deg)";
+        }
+
+        function selectFormat(fmt) {
+            formatSelect.value = fmt;
+            currentFormat = fmt;
+            formatSelect.dispatchEvent(new Event("change"));
+
+            if (fmt === "mp4") {
+                formatIconBadge.innerHTML = '<i class="bx bx-video text-base font-normal"></i>';
+                formatIconBadge.className = 'w-7 h-7 rounded-lg bg-violet-600 text-white border border-slate-900 shadow-[1px_1px_0px_#0f172a] flex items-center justify-center';
+                formatLabel.textContent = "MP4 (Video)";
+                formatCheckMp4.classList.remove("hidden");
+                formatCheckMp3.classList.add("hidden");
+            } else {
+                formatIconBadge.innerHTML = '<i class="bx bx-music text-base font-normal"></i>';
+                formatIconBadge.className = 'w-7 h-7 rounded-lg bg-amber-400 text-slate-900 border border-slate-900 shadow-[1px_1px_0px_#0f172a] flex items-center justify-center';
+                formatLabel.textContent = "MP3 (Audio)";
+                formatCheckMp4.classList.add("hidden");
+                formatCheckMp3.classList.remove("hidden");
+            }
+
+            renderQualityOptions(fmt);
+        }
+
+        formatTrigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleFormatDropdown();
+        });
+
+        document.querySelectorAll(".format-option").forEach((opt) => {
+            opt.addEventListener("click", () => {
+                selectFormat(opt.dataset.value);
+                closeFormatDropdown();
+            });
+        });
+
+        // Quality Dropdown Logic
+        function toggleQualityDropdown() {
+            closeFormatDropdown();
+            const isOpen = !qualityMenu.classList.contains("hidden");
+            if (isOpen) {
+                closeQualityDropdown();
+            } else {
+                qualityMenu.classList.remove("hidden");
+                qualityChevron.style.transform = "rotate(180deg)";
+            }
+        }
+
+        function closeQualityDropdown() {
+            qualityMenu.classList.add("hidden");
+            qualityChevron.style.transform = "rotate(0deg)";
+        }
+
+        function updateQualityTriggerUI(opt) {
+            qualityBadge.textContent = opt.badge;
+            qualityBadge.className = `px-2 py-0.5 rounded-md ${opt.badgeBg} text-slate-900 border border-slate-900 shadow-[1px_1px_0px_#0f172a] text-[10px] font-black uppercase`;
+            qualityLabel.textContent = opt.label;
+        }
+
+        function selectQuality(opt) {
+            qualitySelect.value = opt.value;
+            qualitySelect.dispatchEvent(new Event("change"));
+            updateQualityTriggerUI(opt);
+
+            document.querySelectorAll(".quality-option").forEach((el) => {
+                const check = el.querySelector(".quality-check");
+                if (el.dataset.value === opt.value) {
+                    el.classList.add("bg-violet-50/70");
+                    check?.classList.remove("hidden");
+                } else {
+                    el.classList.remove("bg-violet-50/70");
+                    check?.classList.add("hidden");
+                }
             });
         }
+
+        qualityTrigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleQualityDropdown();
+        });
+
+        function renderQualityOptions(fmt) {
+            qualitySelect.innerHTML = "";
+            qualityMenu.innerHTML = "";
+
+            const opts = QUALITY_OPTIONS[fmt] || QUALITY_OPTIONS.mp4;
+            const currentVal = qualitySelect.value || opts[0].value;
+
+            opts.forEach((opt, idx) => {
+                // Hidden select option
+                const optionEl = document.createElement("option");
+                optionEl.value = opt.value;
+                optionEl.textContent = opt.label;
+                if (opt.value === currentVal || idx === 0) {
+                    optionEl.selected = true;
+                }
+                qualitySelect.appendChild(optionEl);
+
+                // Custom Neobrutalist option element
+                const isSelected = (opt.value === (qualitySelect.value || opts[0].value));
+                const itemEl = document.createElement("div");
+                itemEl.className = `quality-option p-3 hover:bg-violet-50 cursor-pointer transition-colors flex items-center justify-between ${isSelected ? 'bg-violet-50/70' : ''}`;
+                itemEl.dataset.value = opt.value;
+                itemEl.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <span class="px-2 py-0.5 rounded-md ${opt.badgeBg} text-slate-900 border border-slate-900 shadow-[1px_1px_0px_#0f172a] text-[10px] font-black uppercase">
+                            ${opt.badge}
+                        </span>
+                        <div>
+                            <div class="text-xs sm:text-sm font-extrabold text-slate-900">${opt.label}</div>
+                            <div class="text-[10px] font-medium text-slate-500">${opt.desc}</div>
+                        </div>
+                    </div>
+                    <span class="quality-check ${isSelected ? 'text-violet-600' : 'hidden text-violet-600'} text-lg font-normal">
+                        <i class="bx bx-check-circle"></i>
+                    </span>
+                `;
+
+                itemEl.addEventListener("click", () => {
+                    selectQuality(opt);
+                    closeQualityDropdown();
+                });
+
+                qualityMenu.appendChild(itemEl);
+            });
+
+            const selectedOpt = opts.find((o) => o.value === qualitySelect.value) || opts[0];
+            updateQualityTriggerUI(selectedOpt);
+        }
+
+        // Close dropdowns on outside click & Escape
+        document.addEventListener("click", (e) => {
+            if (!formatDropdown.contains(e.target)) {
+                closeFormatDropdown();
+            }
+            if (!qualityDropdown.contains(e.target)) {
+                closeQualityDropdown();
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                closeFormatDropdown();
+                closeQualityDropdown();
+            }
+        });
+
+        // Initialize default options
+        renderQualityOptions("mp4");
 
         // Step 1: Ambil metadata & tampilkan box kanan
         form.addEventListener("submit", async (e) => {

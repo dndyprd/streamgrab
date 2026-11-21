@@ -37,9 +37,9 @@ def api_download():
     
     try:
         if fmt == "mp3":
-            file_path, download_name = download_mp3(url)
+            file_path, download_name = download_mp3(url, quality=quality)
         else:
-            file_path, download_name = download_mp4(url)
+            file_path, download_name = download_mp4(url, quality=quality)
     except Exception as exc:
         return jsonify({"error": f"Gagal memproses unduhan: {exc}"}), 500
 
