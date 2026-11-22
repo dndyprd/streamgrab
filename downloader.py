@@ -14,12 +14,39 @@ _STATE_LOCK = threading.Lock()
 _JOBS: dict[str, dict] = {}
 _LAST_WRITE_TIME: dict[str, float] = {}
 
+try:
+  MAX_DURATION_SECONDS = int(os.getenv("MAX_DURATION_SECONDS", "1200"))
+except (ValueError, TypeError):
+  MAX_DURATION_SECONDS = 1200
+
+
+# Periksa Durasi Video
+def _format_duration_limit(seconds: int) -> str:
+  mins, secs = divmod(max(0, int(seconds)), 60)
+  if secs == 0:
+    return f"{mins} menit"
+  return f"{mins} menit {secs} detik"
+
+
+def _check_duration_limit(info: dict):
+  raw_duration = info.get("duration")
+  if raw_duration is not None:
+    try:
+      duration = float(raw_duration)
+      if duration > MAX_DURATION_SECONDS:
+        limit_text = _format_duration_limit(MAX_DURATION_SECONDS)
+        raise ValueError(
+            f"Durasi media melebihi batas maksimal ({limit_text})."
+        )
+    except (ValueError, TypeError) as exc:
+      if "Durasi media melebihi batas maksimal" in str(exc):
+        raise
 
 def _job_file_path(job_id: str) -> str:
   safe_id = re.sub(r"[^a-zA-Z0-9_-]", "", job_id)
   return os.path.join(DOWNLOAD_DIR, f".job_{safe_id}.json")
 
-
+# Atur status download
 def _set_job(job_id: str, **updates):
   path = _job_file_path(job_id)
   with _STATE_LOCK:
@@ -60,7 +87,7 @@ def _set_job(job_id: str, **updates):
         except OSError:
           pass
 
-
+# Dapatkan status download
 def get_job(job_id: str) -> dict | None:
   path = _job_file_path(job_id)
 
@@ -89,7 +116,7 @@ def get_job(job_id: str) -> dict | None:
   with _STATE_LOCK:
     return dict(_JOBS[job_id]) if job_id in _JOBS else None
 
-
+# Hapus File
 def delete_job(job_id: str):
   path = _job_file_path(job_id)
   with _STATE_LOCK:
@@ -114,9 +141,8 @@ def delete_job(job_id: str):
     except OSError:
       pass
 
-
+# Menghapus cache download lama
 def clean_stale_downloads(max_age_seconds: int = 3600):
-  """Membersihkan file job atau media lama yang tertinggal > 1 jam."""
   now = time.time()
   try:
     for fname in os.listdir(DOWNLOAD_DIR):
@@ -131,7 +157,7 @@ def clean_stale_downloads(max_age_seconds: int = 3600):
   except OSError:
     pass
 
-
+# Kelola Persentase
 def _parse_percent(raw_str: str | None) -> float:
   if not raw_str:
     return 0.0
@@ -156,9 +182,10 @@ def get_media_info(url: str) -> dict:
       "noplaylist": True,
   }
 
-  # Eksekusi Info
   with yt_dlp.YoutubeDL(ydl_opts) as ydl:
     info = ydl.extract_info(url, download=False)
+
+  _check_duration_limit(info)
 
   return {
       "title": info.get("title", "Media Tanpa Judul"),
@@ -285,7 +312,10 @@ def _run_download_worker(job_id: str, url: str, fmt: str, quality: str):
       }
       ext = "mp4"
 
+    # Proses Download
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+      info = ydl.extract_info(url, download=False)
+      _check_duration_limit(info)
       info = ydl.extract_info(url, download=True)
       prepared = ydl.prepare_filename(info)
 

@@ -22,6 +22,8 @@ def api_info():
   try:
     info = get_media_info(url)
     return jsonify(info)
+  except ValueError as exc:
+    return jsonify({"error": str(exc)}), 400
   except Exception as exc:
     return jsonify({"error": f"Gagal mengambil informasi: {exc}"}), 500
 
@@ -42,6 +44,8 @@ def api_download():
   try:
     job_id = start_download_job(url=url, fmt=fmt, quality=quality)
     return jsonify({"job_id": job_id}), 202
+  except ValueError as exc:
+    return jsonify({"error": str(exc)}), 400
   except Exception as exc:
     return jsonify({"error": f"Gagal memulai unduhan: {exc}"}), 500
 
