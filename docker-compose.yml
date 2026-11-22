@@ -9,4 +9,6 @@ services:
       - ./downloads:/app/downloads
       - ./templates:/app/templates
       - ./static:/app/static
+      - ./app.py:/app/app.py
+      - ./downloader.py:/app/downloader.py
     restart: unless-stopped

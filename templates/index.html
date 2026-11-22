@@ -57,16 +57,7 @@
         }
 
         .custom-scrollbar::-webkit-scrollbar {
-            width: 2px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #0f172a;
-            border-radius: 9999px;
+            width: 0px;
         }
     </style>
 </head>
@@ -75,9 +66,9 @@
 
 <body class="min-h-screen flex items-center justify-center">
     <main id="downloader"
-        class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-12 lg:gap-20 items-center justify-center">
+        class="w-full max-w-5xl md:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-12 lg:gap-20 items-center justify-center">
         <!-- Left Content -->
-        <div class="flex flex-col space-y-4">
+        <div class="flex flex-col space-y-4 w-full max-w-md md:max-w-7xl">
 
             <!-- Tagline Badge -->
             <div
@@ -211,7 +202,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="flex items-center gap-1 text-sm text-slate-500 font-medium">
+            <div class="flex items-center gap-1 text-sm ml-4 text-slate-500 font-medium">
                 <span>Created by</span>
                 <a class="text-violet-600 hover:text-violet-700" href="https://dndyprd.vercel.app">@dndyprd</a>
                 <span>&copy; 2026</span>
@@ -219,9 +210,9 @@
         </div>
 
         <!-- Right Content -->
-        <div id="previewBox" class="hidden w-full max-w-lg relative">
+        <div id="previewBox" class="hidden w-full max-w-md sm:max-w-lg relative">
             <div
-                class="absolute -inset-4 bg-gradient-to-r from-violet-100 to-violet-200 rounded-3xl -z-10 rotate-4 border-2 border-dashed border-slate-300">
+                class="absolute -inset-2 md:-inset-4 bg-gradient-to-r from-violet-100 to-violet-200 rounded-3xl -z-10 rotate-4 border-2 border-dashed border-slate-300">
             </div>
             <div class="bg-white rounded-3xl border-2 border-slate-900 shadow-neo-lg p-6 relative flex flex-col
                 space-y-5">
@@ -452,7 +443,6 @@
             const currentVal = qualitySelect.value || opts[0].value;
 
             opts.forEach((opt, idx) => {
-                // Hidden select option
                 const optionEl = document.createElement("option");
                 optionEl.value = opt.value;
                 optionEl.textContent = opt.label;
@@ -461,7 +451,6 @@
                 }
                 qualitySelect.appendChild(optionEl);
 
-                // Custom Neobrutalist option element
                 const isSelected = (opt.value === (qualitySelect.value || opts[0].value));
                 const itemEl = document.createElement("div");
                 itemEl.className = `quality-option p-3 hover:bg-violet-50 cursor-pointer transition-colors flex items-center justify-between ${isSelected ? 'bg-violet-50/70' : ''}`;
@@ -495,10 +484,10 @@
 
         // Close dropdowns on outside click & Escape
         document.addEventListener("click", (e) => {
-            if (!formatDropdown.contains(e.target)) {
+            if (formatDropdown && !formatDropdown.contains(e.target)) {
                 closeFormatDropdown();
             }
-            if (!qualityDropdown.contains(e.target)) {
+            if (qualityDropdown && !qualityDropdown.contains(e.target)) {
                 closeQualityDropdown();
             }
         });
@@ -510,10 +499,31 @@
             }
         });
 
-        // Initialize default options
+        // Render live progress
+        function renderProgressUI(stage, percent, speed = "", eta = "") {
+            const safePct = Math.max(0, Math.min(100, Number(percent || 0)));
+            const pctText = safePct.toFixed(1).replace(/\.0$/, "");
+            const metaParts = [speed, eta ? `ETA ${eta}` : ""].filter(Boolean);
+            const metaText = metaParts.length ? ` • ${metaParts.join(" • ")}` : "";
+
+            statusEl.className = "text-xs sm:text-sm font-semibold rounded-2xl border-2 border-slate-900 p-4 bg-amber-50 text-amber-900 block shadow-neo-sm space-y-2.5";
+            statusEl.innerHTML = `
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping shrink-0"></span>
+                        <span class="truncate">${stage}${metaText}</span>
+                    </div>
+                    <span class="font-extrabold text-slate-900 shrink-0">${pctText}%</span>
+                </div>
+                <div class="w-full h-3.5 rounded-full bg-white border-2 border-slate-900 overflow-hidden">
+                    <div class="h-full bg-violet-600 transition-all duration-300" style="width: ${safePct}%"></div>
+                </div>
+            `;
+        }
+
         renderQualityOptions("mp4");
 
-        // Step 1: Ambil metadata & tampilkan box kanan
+        // Ambil informasi Media
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             const url = urlInput.value.trim();
@@ -565,53 +575,99 @@
             }
         });
 
-        // Step 2: Download sesuai kualitas yang dipilih
+        // Download sesuai kualitas yang dipilih
         btn.addEventListener("click", async () => {
             if (!currentUrl) return;
 
             const quality = qualitySelect.value;
             btn.disabled = true;
-            btnText.textContent = "Memproses di server...";
+            convertBtn.disabled = true;
+            btnText.textContent = "Memproses media...";
 
-            statusEl.className = "text-xs sm:text-sm font-semibold rounded-2xl border-2 border-slate-900 p-4 bg-amber-50 text-amber-900 block shadow-neo-sm";
-            statusEl.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <span class="inline-block w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
-                    <span>Sedang memproses media, mohon tunggu beberapa detik...</span>
-                </div>
-            `;
+            renderProgressUI("Memulai proses di server...", 0);
 
             try {
-                const res = await fetch("/api/download", {
+                const startRes = await fetch("/api/download", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ url: currentUrl, format: currentFormat, quality }),
                 });
 
-                if (!res.ok) {
-                    const errData = await res.json().catch(() => ({}));
-                    throw new Error(errData.error || "Gagal memproses unduhan.");
+                const startData = await startRes.json().catch(() => ({}));
+                if (!startRes.ok || !startData.job_id) {
+                    throw new Error(startData.error || "Gagal memulai unduhan.");
                 }
 
-                const disposition = res.headers.get("Content-Disposition") || "";
-                const match = disposition.match(/filename="?([^"]+)"?/i);
-                const filename = match ? match[1] : `download.${currentFormat}`;
+                const jobId = startData.job_id;
 
-                const blob = await res.blob();
-                const objectUrl = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = objectUrl;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(objectUrl);
+                // Polling progress live dengan retry-tolerance agar tahan gangguan race condition / file lock
+                let isComplete = false;
+                let consecutiveErrors = 0;
+                const maxConsecutiveErrors = 8; // toleransi hingga ~6 detik jika terjadi delay I/O disk
+
+                while (!isComplete) {
+                    await new Promise((resolve) => setTimeout(resolve, 750));
+
+                    try {
+                        const progRes = await fetch(`/api/progress/${jobId}`);
+                        if (!progRes.ok) {
+                            consecutiveErrors++;
+                            if (consecutiveErrors >= maxConsecutiveErrors) {
+                                const errData = await progRes.json().catch(() => ({}));
+                                throw new Error(errData.error || "Job tidak ditemukan.");
+                            }
+                            continue;
+                        }
+
+                        // Berhasil membaca, reset counter error
+                        consecutiveErrors = 0;
+                        const progData = await progRes.json();
+
+                        renderProgressUI(
+                            progData.stage || "Sedang memproses...",
+                            progData.percent || 0,
+                            progData.speed || "",
+                            progData.eta || ""
+                        );
+
+                        if (progData.status === "ready") {
+                            isComplete = true;
+                        } else if (progData.status === "error") {
+                            throw new Error(progData.error || "Terjadi kesalahan saat memproses media.");
+                        }
+                    } catch (pollErr) {
+                        if (consecutiveErrors >= maxConsecutiveErrors || (pollErr.message && pollErr.message.includes("Terjadi kesalahan"))) {
+                            throw pollErr;
+                        }
+                        consecutiveErrors++;
+                        if (consecutiveErrors >= maxConsecutiveErrors) {
+                            throw pollErr;
+                        }
+                    }
+                }
+
+                renderProgressUI("Mengirim file ke browser...", 100);
+
+                const downloadUrl = `/api/file/${jobId}`;
+
+                // Memicu unduhan native browser secara langsung (stream langsung ke disk pengguna)
+                const link = document.createElement("a");
+                link.href = downloadUrl;
+                link.setAttribute("download", "");
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
 
                 statusEl.className = "text-xs sm:text-sm font-semibold rounded-2xl border-2 border-slate-900 p-4 bg-emerald-50 text-emerald-900 block shadow-neo-sm";
                 statusEl.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <span class="text-emerald-600 font-bold text-base">✔</span>
-                        <span>Berhasil! File <strong class="font-semibold">${filename}</strong> telah mulai diunduh.</span>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-emerald-600 font-bold text-base">✔</span>
+                            <span>Berhasil! File sedang diunduh.</span>
+                        </div>
+                        <a href="${downloadUrl}" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shrink-0 shadow-sm">
+                           Klik Jika Belum Muncul
+                        </a>
                     </div>
                 `;
             } catch (err) {
@@ -624,6 +680,7 @@
                 `;
             } finally {
                 btn.disabled = false;
+                convertBtn.disabled = false;
                 btnText.textContent = "Unduh Sekarang";
             }
         });
